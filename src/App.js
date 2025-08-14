@@ -4,7 +4,7 @@ import Dice from './components/Dice';
 import './Ludo.css';
 import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
-import { getPiecePath, checkCapture } from './gameLogic/core';
+import { getPiecePath, checkCapture, getAIMove } from './gameLogic/core';
 import GameLog from './components/GameLog';
 import GameSetup from './components/GameSetup';
 
@@ -85,6 +85,31 @@ function App() {
       if (lastLog.type === 'win') playSound('win');
     }
   }, [log, prevState]);
+
+  // Effect for handling AI turns
+  useEffect(() => {
+    const isAITurn = playerConfig[currentPlayer]?.type === 'ai';
+    if (!isAITurn || winner || animatingPiece) {
+      return;
+    }
+
+    if (gameState === 'roll') {
+      const timer = setTimeout(() => {
+        handleDiceRoll();
+      }, 1000); // Delay for AI "thinking" before rolling
+      return () => clearTimeout(timer);
+    }
+
+    if (gameState === 'move') {
+      const timer = setTimeout(() => {
+        const bestMoveId = getAIMove(pieces, currentPlayer, movablePieces, diceValue);
+        if (bestMoveId !== null) {
+          handlePieceClick(currentPlayer, bestMoveId);
+        }
+      }, 1200); // Delay for AI "thinking" before moving
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, currentPlayer, winner, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handleDiceRoll]);
 
   if (appState === 'setup') {
     return <GameSetup onStartGame={handleStartGame} />;

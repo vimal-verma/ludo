@@ -136,6 +136,64 @@ export function checkCapture(pieces, player, pieceId, roll) {
 }
 
 /**
+ * Determines the best move for an AI player based on a simple scoring system.
+ */
+export function getAIMove(pieces, player, movablePieces, diceValue) {
+    if (!movablePieces || movablePieces.length === 0) {
+        return null;
+    }
+
+    const playerPieces = pieces[player];
+    let bestMove = { id: null, score: -1 };
+
+    for (const pieceId of movablePieces) {
+        const piece = playerPieces.find(p => p.id === pieceId);
+        let score = 0;
+
+        const finalPos = calculateNewPosition(piece.position, diceValue, player);
+
+        // 1. Highest priority: getting a piece home
+        if (finalPos === 'home') {
+            score = 100;
+        }
+
+        // 2. High priority: capturing an opponent
+        if (score < 90 && typeof finalPos === 'number' && !SAFE_ZONES.includes(finalPos)) {
+            const willCapture = Object.keys(pieces).some(color => {
+                if (color === player || !pieces[color]) return false;
+                // Can only capture a single piece, not a blockade
+                return pieces[color].filter(p => p.position === finalPos).length === 1;
+            });
+            if (willCapture) {
+                score = 90;
+            }
+        }
+
+        // 3. Good priority: getting a piece out of base
+        if (score < 80 && piece.position === 'base') {
+            score = 80;
+        }
+
+        // 4. Medium priority: moving to a safe zone
+        if (score < 50 && typeof finalPos === 'number' && SAFE_ZONES.includes(finalPos)) {
+            score = 50;
+        }
+
+        // 5. Base score for advancing on the track
+        if (typeof piece.position === 'number') {
+            score += (piece.position / TOTAL_TRACK_SQUARES) * 20;
+        }
+
+        if (score > bestMove.score) {
+            bestMove = { id: pieceId, score };
+        }
+    }
+
+    // If all moves have a score of 0, just pick the first one. Otherwise, pick the best.
+    return bestMove.id !== null ? bestMove.id : movablePieces[0];
+}
+
+/**
  * Moves a piece and handles captures.
  * @returns {{pieces: object, capture: boolean}} The new pieces state and whether a capture occurred.
  */

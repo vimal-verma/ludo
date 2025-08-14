@@ -409,3 +409,13 @@
 .start-game-button:hover {
   background-color: #27ae60;
 }
+
+.player-type-button {
+  padding: 8px 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}

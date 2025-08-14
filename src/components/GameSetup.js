@@ -4,7 +4,7 @@ import { ALL_PLAYERS } from '../gameLogic/core';
 const GameSetup = ({ onStartGame }) => {
   const [playerConfig, setPlayerConfig] = useState(
     ALL_PLAYERS.reduce((acc, color) => {
-      acc[color] = { isActive: true, name: color.charAt(0).toUpperCase() + color.slice(1) };
+      acc[color] = { isActive: true, name: color.charAt(0).toUpperCase() + color.slice(1), type: 'human' };
       return acc;
     }, {})
   );
@@ -20,6 +20,13 @@ const GameSetup = ({ onStartGame }) => {
     setPlayerConfig(prev => ({
       ...prev,
       [color]: { ...prev[color], name }
+    }));
+  };
+
+  const handleTypeChange = (color) => {
+    setPlayerConfig(prev => ({
+      ...prev,
+      [color]: { ...prev[color], type: prev[color].type === 'human' ? 'ai' : 'human' }
     }));
   };
 
@@ -54,6 +61,13 @@ const GameSetup = ({ onStartGame }) => {
               disabled={!playerConfig[color].isActive}
               placeholder="Enter name"
             />
+            <button
+              onClick={() => handleTypeChange(color)}
+              disabled={!playerConfig[color].isActive}
+              className="player-type-button"
+            >
+              {playerConfig[color].type.toUpperCase()}
+            </button>
           </div>
         ))}
       </div>
