@@ -166,11 +166,12 @@ const Board = ({
   };
 
   const renderPlayerControls = (color) => {
-    // Only show controls for the current player if they are human
-    if (color !== currentPlayer || winner || animatingPiece || playerConfig[color]?.type !== 'human') {
+    // Only show controls for the current player
+    if (color !== currentPlayer || winner || animatingPiece) {
       return null;
     }
 
+    const isHuman = playerConfig[color]?.type === 'human';
     const canRoll = gameState === 'roll';
 
     return (
@@ -179,7 +180,8 @@ const Board = ({
           diceValue={diceValue}
           isRolling={isRolling}
           onDiceRoll={handleDiceRoll}
-          disabled={!canRoll}
+          // Disable for AI, or if it's not the roll phase for humans
+          disabled={!isHuman || !canRoll}
         />
       </div>
     );
