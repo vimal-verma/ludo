@@ -1,6 +1,5 @@
 import React, { useReducer, useEffect, useRef, useState } from 'react';
 import Board from './components/Board';
-import Dice from './components/Dice';
 import './Ludo.css';
 import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
@@ -109,6 +108,7 @@ function App() {
       }, 1200); // Delay for AI "thinking" before moving
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line
   }, [gameState, currentPlayer, winner, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handleDiceRoll]);
 
   if (appState === 'setup') {
