@@ -1,11 +1,12 @@
-import React, { useReducer, useEffect, useRef, useState } from 'react';
+import React, { useReducer, useEffect, useRef, useState, useCallback } from 'react';
 import Board from './components/Board';
 import './Ludo.css';
+import styles from './App.module.css';
 import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
 import { getPiecePath, checkCapture, getAIMove } from './gameLogic/core';
-import GameLog from './components/GameLog';
 import GameSetup from './components/GameSetup';
+import SidePanel from './components/SidePanel';
 
 function usePrevious(value) {
   const ref = useRef();
@@ -18,7 +19,7 @@ function usePrevious(value) {
 function App() {
   const [appState, setAppState] = useState('setup'); // 'setup', 'playing'
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winner, playerConfig, lastMovedPiece, log } = state;
+  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winner, playerConfig, lastMovedPiece } = state;
   const [animatingPiece, setAnimatingPiece] = useState(null);
   const prevState = usePrevious(state);
 
@@ -27,8 +28,9 @@ function App() {
     setAppState('playing');
   };
 
-  const handleDiceRoll = () => {
+  const handleDiceRoll = useCallback(() => {
     if (isRolling || gameState !== 'roll' || animatingPiece) return;
+    playSound('roll');
     dispatch({ type: 'ROLL_DICE_START' });
 
     // Animate dice roll
@@ -36,9 +38,9 @@ function App() {
       const finalValue = Math.floor(Math.random() * 6) + 1;
       dispatch({ type: 'ROLL_DICE_COMPLETE', payload: { roll: finalValue } });
     }, 500);
-  };
+  }, [isRolling, gameState, animatingPiece]);
 
-  const handlePieceClick = (color, pieceId) => {
+  const handlePieceClick = useCallback((color, pieceId) => {
     if (
       color !== currentPlayer ||
       gameState !== 'move' ||
@@ -59,7 +61,7 @@ function App() {
       willCapture,
       startPosition: piece.position,
     });
-  };
+  }, [currentPlayer, gameState, movablePieces, animatingPiece, pieces, diceValue]);
 
   const handleAnimationComplete = () => {
     if (!animatingPiece) return;
@@ -74,75 +76,73 @@ function App() {
   }
 
   useEffect(() => {
-    if (!prevState || !log) return;
-
-    // Play sounds based on the last log entry
-    if (log.length > prevState.log.length) {
-      const lastLog = log[log.length - 1];
-      if (lastLog.type === 'roll') playSound('roll');
-      // Move and capture sounds are handled by the animation effect for better timing
-      if (lastLog.type === 'win') playSound('win');
+    // Play win sound when a winner is declared
+    if (winner && (!prevState || !prevState.winner)) {
+      playSound('win');
     }
-  }, [log, prevState]);
+  }, [winner, prevState]);
 
-  // Effect for handling AI turns
+  // Effect for AI dice rolling
   useEffect(() => {
     const isAITurn = playerConfig[currentPlayer]?.type === 'ai';
-    if (!isAITurn || winner || animatingPiece) {
+    if (!isAITurn || gameState !== 'roll' || winner || animatingPiece) {
       return;
     }
 
-    if (gameState === 'roll') {
-      const timer = setTimeout(() => {
-        handleDiceRoll();
-      }, 1000); // Delay for AI "thinking" before rolling
-      return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      handleDiceRoll();
+    }, 1000); // Delay for AI "thinking" before rolling
+    return () => clearTimeout(timer);
+  }, [gameState, currentPlayer, winner, animatingPiece, playerConfig, handleDiceRoll]);
+
+  // Effect for AI piece moving
+  useEffect(() => {
+    const isAITurn = playerConfig[currentPlayer]?.type === 'ai';
+    if (!isAITurn || gameState !== 'move' || winner || animatingPiece) {
+      return;
     }
 
-    if (gameState === 'move') {
-      const timer = setTimeout(() => {
-        const bestMoveId = getAIMove(pieces, currentPlayer, movablePieces, diceValue);
-        if (bestMoveId !== null) {
-          handlePieceClick(currentPlayer, bestMoveId);
-        }
-      }, 1200); // Delay for AI "thinking" before moving
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line
-  }, [gameState, currentPlayer, winner, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handleDiceRoll]);
+    const timer = setTimeout(() => {
+      const bestMoveId = getAIMove(pieces, currentPlayer, movablePieces, diceValue);
+      if (bestMoveId !== null) {
+        handlePieceClick(currentPlayer, bestMoveId);
+      }
+    }, 1200); // Delay for AI "thinking" before moving
+    return () => clearTimeout(timer);
+  }, [gameState, currentPlayer, winner, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handlePieceClick]);
 
   if (appState === 'setup') {
     return <GameSetup onStartGame={handleStartGame} />;
   }
 
   return (
-    <div className="app">
-      <h1>Ludo Game</h1>
-      <div className="game-container">
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <h1>Ludo Game</h1>
+      </header>
+      <div className={styles.gameContainer}>
         <Board
           pieces={pieces}
           onPieceClick={handlePieceClick}
           movablePieces={movablePieces}
           currentPlayer={currentPlayer}
-          winner={winner}
-          onRestart={handleRestart}
-          playerConfig={playerConfig}
           lastMovedPiece={lastMovedPiece}
           animatingPiece={animatingPiece}
           onAnimationComplete={handleAnimationComplete}
+          winner={winner}
+          onRestart={handleRestart}
+          playerConfig={playerConfig}
+        />
+        <SidePanel
+          playerConfig={playerConfig}
+          currentPlayer={currentPlayer}
           diceValue={diceValue}
           isRolling={isRolling}
           handleDiceRoll={handleDiceRoll}
           gameState={gameState}
+          winner={winner}
+          onRestart={handleRestart}
         />
-        <div className="side-panel">
-          <div className="controls">
-            <h2>Current Player: <span style={{ color: `var(--${currentPlayer})` }}>
-              {playerConfig[currentPlayer]?.name.toUpperCase() || currentPlayer.toUpperCase()}
-            </span></h2>
-          </div>
-          <GameLog logs={log} />
-        </div>
       </div>
     </div>
   );

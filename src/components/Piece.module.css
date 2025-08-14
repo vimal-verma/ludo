@@ -1,0 +1,35 @@
+.piece { 
+    width: var(--piece-size); 
+    height: var(--piece-size); 
+    border-radius: 50%; 
+    border: 2px solid black; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3); 
+    transition: transform 0.2s ease; 
+}
+
+.movable {
+  cursor: pointer;
+  transform: scale(1.1);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse { 
+    0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.5); } 
+    70% { box-shadow: 0 0 0 10px rgba(74, 144, 226, 0); } 
+    100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); } 
+}
+
+.lastMoved {
+  outline: 3px solid #ffeb3b; /* Bright yellow outline */
+  outline-offset: 2px;
+  z-index: 12; /* Ensure outline is visible over other pieces */
+}
+
+.pieceInner { width: 60%; height: 60%; border-radius: 50%; background-color: white; border: 1px solid black; }
+.red { background-color: var(--red); }
+.green { background-color: var(--green); }
+.yellow { background-color: var(--yellow); }
+.blue { background-color: var(--blue); }

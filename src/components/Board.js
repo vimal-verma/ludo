@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Piece from './Piece';
-import Dice from './Dice';
+import styles from './Board.module.css';
 import { PATH_COORDINATES } from '../gameLogic/path';
 import { SAFE_ZONES } from '../gameLogic/core';
 import WinnerDisplay from './WinnerDisplay';
@@ -17,10 +17,6 @@ const Board = ({
   lastMovedPiece,
   animatingPiece,
   onAnimationComplete,
-  diceValue,
-  isRolling,
-  handleDiceRoll,
-  gameState,
 }) => {
   const [animatedPieceState, setAnimatedPieceState] = useState(null);
 
@@ -74,7 +70,7 @@ const Board = ({
       const piece = basePieces[index];
       const isLastMoved = piece && lastMovedPiece && lastMovedPiece.color === color && lastMovedPiece.id === piece.id;
       return (
-        <div key={index} className="base-spot">
+        <div key={index} className={styles.baseSpot}>
           {piece && (
             <Piece
               color={color}
@@ -114,13 +110,13 @@ const Board = ({
       const isBlockade = piecesOnSquare.length > 1;
 
       return (
-        <div key={`track-pos-${position}`} className="track-piece-container" style={positionStyle}>
+        <div key={`track-pos-${position}`} className={styles.trackPieceContainer} style={positionStyle}>
           {piecesOnSquare.map((piece) => {
             const isLastMoved = lastMovedPiece && lastMovedPiece.color === piece.color && lastMovedPiece.id === piece.id;
             return (
             <div
               key={`${piece.color}-${piece.id}`}
-              className={`track-piece ${isBlockade ? 'in-blockade' : ''}`}
+              className={`${styles.trackPiece} ${isBlockade ? styles.inBlockade : ''}`}
             >
               <Piece
                 color={piece.color}
@@ -141,7 +137,7 @@ const Board = ({
     return SAFE_ZONES.map(zoneIndex => (
       <div
         key={`safezone-${zoneIndex}`}
-        className="safe-zone-marker"
+        className={styles.safeZoneMarker}
         style={PATH_COORDINATES[zoneIndex]}
       />
     ));
@@ -150,60 +146,43 @@ const Board = ({
   const renderAnimatingPiece = () => {
     if (!animatedPieceState) return null;
 
-    const animationClass = animatedPieceState.isAnimating ? 'animating-piece' : '';
+    const animationClass = animatedPieceState.isAnimating ? styles.animatingPiece : '';
 
     return (
       <div
-        className={`track-piece-container ${animationClass}`}
+        className={`${styles.trackPieceContainer} ${animationClass}`}
         style={{ top: animatedPieceState.top, left: animatedPieceState.left }}
       >
-        <div className="track-piece">
+        <div className={styles.trackPiece}>
           <Piece color={animatedPieceState.color} />
         </div>
       </div>
     );
   };
 
-  const renderPlayerControls = (color) => {
-    if (color !== currentPlayer || winner || animatingPiece) return null;
-
-    return (
-      <div className="player-controls-active">
-        <Dice value={diceValue} isRolling={isRolling} />
-        <button onClick={handleDiceRoll} disabled={isRolling || gameState !== 'roll'}>
-          {gameState === 'move' ? 'Select a piece' : isRolling ? 'Rolling...' : 'Roll Dice'}
-        </button>
-      </div>
-    );
-  };
-
   return (
-    <div className="board-container">
-      <div className="board">
-        <WinnerDisplay winner={winner} onRestart={onRestart} playerConfig={playerConfig} />
+    <div className={styles.boardContainer}>
+      <div className={styles.board}>
+        {winner && <WinnerDisplay winner={winner} onRestart={onRestart} playerConfig={playerConfig} />}
         {renderSafeZones()}
         {renderTrackPieces()}
         {renderAnimatingPiece()}
-        <div className="player-area green-area">
-          <div className="base">{renderBasePieces('green')}</div>
-          {renderPlayerControls('green')}
+        <div className={`${styles.playerArea} ${styles.greenArea}`}>
+          <div className={styles.base}>{renderBasePieces('green')}</div>
         </div>
-        <div className="path-arm top-arm"></div>
-        <div className="player-area yellow-area">
-          <div className="base">{renderBasePieces('yellow')}</div>
-          {renderPlayerControls('yellow')}
+        <div className={`${styles.pathArm} ${styles.topArm}`}></div>
+        <div className={`${styles.playerArea} ${styles.yellowArea}`}>
+          <div className={styles.base}>{renderBasePieces('yellow')}</div>
         </div>
-        <div className="path-arm left-arm"></div>
-        <div className="center-home"><div className="home-triangle green"></div><div className="home-triangle yellow"></div><div className="home-triangle blue"></div><div className="home-triangle red"></div></div>
-        <div className="path-arm right-arm"></div>
-        <div className="player-area red-area">
-          <div className="base">{renderBasePieces('red')}</div>
-          {renderPlayerControls('red')}
+        <div className={`${styles.pathArm} ${styles.leftArm}`}></div>
+        <div className={styles.centerHome}><div className={`${styles.homeTriangle} ${styles.homeTriangleGreen}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleYellow}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleBlue}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleRed}`}></div></div>
+        <div className={`${styles.pathArm} ${styles.rightArm}`}></div>
+        <div className={`${styles.playerArea} ${styles.redArea}`}>
+          <div className={styles.base}>{renderBasePieces('red')}</div>
         </div>
-        <div className="path-arm bottom-arm"></div>
-        <div className="player-area blue-area">
-          <div className="base">{renderBasePieces('blue')}</div>
-          {renderPlayerControls('blue')}
+        <div className={`${styles.pathArm} ${styles.bottomArm}`}></div>
+        <div className={`${styles.playerArea} ${styles.blueArea}`}>
+          <div className={styles.base}>{renderBasePieces('blue')}</div>
         </div>
       </div>
     </div>

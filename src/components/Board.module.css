@@ -1,0 +1,131 @@
+.boardContainer {
+  width: var(--board-size);
+  height: var(--board-size);
+  /* The winner overlay will be positioned relative to this */
+  position: relative; 
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #f8f8f8;
+  border: 2px solid #333;
+  display: grid;
+  grid-template-columns: var(--base-size) 1fr var(--base-size);
+  grid-template-rows: var(--base-size) 1fr var(--base-size);
+  grid-template-areas:
+    "green-area top-arm yellow-area"
+    "left-arm   center   right-arm"
+    "red-area   bottom-arm blue-area";
+}
+
+.playerArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  position: relative;
+}
+
+.greenArea { grid-area: green-area; background-color: var(--green); }
+.yellowArea { grid-area: yellow-area; background-color: var(--yellow); }
+.redArea { grid-area: red-area; background-color: var(--red); }
+.blueArea { grid-area: blue-area; background-color: var(--blue); }
+
+.base {
+  width: 75%;
+  height: 75%;
+  background-color: white;
+  border: 2px solid #333;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  padding: 5%;
+  gap: 5%;
+}
+
+.baseSpot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #ccc;
+    border-radius: 50%;
+}
+
+.pathArm {
+    background-image: 
+        repeating-linear-gradient(to bottom, #ccc 0, #ccc 1px, transparent 1px, transparent var(--cell-size)),
+        repeating-linear-gradient(to right, #ccc 0, #ccc 1px, transparent 1px, transparent var(--cell-size));
+    background-size: var(--cell-size) var(--cell-size);
+    background-color: #e0e0e0;
+}
+.topArm { grid-area: top-arm; }
+.leftArm { grid-area: left-arm; }
+.rightArm { grid-area: right-arm; }
+.bottomArm { grid-area: bottom-arm; }
+
+.centerHome {
+  grid-area: center;
+  position: relative;
+  background-color: white;
+}
+
+.homeTriangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.homeTriangleGreen { border-width: 0 50% 100% 50%; border-color: transparent transparent var(--green) transparent; top: 0; left: 0; width: 100%; height: 50%; }
+.homeTriangleYellow { border-width: 100% 50% 0 50%; border-color: var(--yellow) transparent transparent transparent; bottom: 0; left: 0; width: 100%; height: 50%; }
+.homeTriangleRed { border-width: 50% 100% 50% 0; border-color: transparent var(--red) transparent transparent; left: 0; top: 0; width: 50%; height: 100%; }
+.homeTriangleBlue { border-width: 50% 0 50% 100%; border-color: transparent transparent transparent var(--blue); right: 0; top: 0; width: 50%; height: 100%; }
+
+.trackPieceContainer {
+  position: absolute;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.animatingPiece {
+  z-index: 20 !important;
+  pointer-events: none;
+  transition: top 0.15s ease-in-out, left 0.15s ease-in-out;
+}
+
+.trackPiece {
+  position: absolute;
+  transition: transform 0.2s ease-out;
+}
+
+.inBlockade:nth-child(1) {
+  transform: translateX(-20%);
+}
+.inBlockade:nth-child(2) {
+  transform: translateX(20%);
+  z-index: 11; /* Bring the second piece slightly forward */
+}
+
+.safeZoneMarker {
+  position: absolute;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5; /* Behind the pieces */
+}
+
+.safeZoneMarker::after {
+  content: '★';
+  font-size: calc(var(--cell-size) * 0.9);
+  color: rgba(0, 0, 0, 0.15);
+  line-height: 1;
+}

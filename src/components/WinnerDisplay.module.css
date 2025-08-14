@@ -1,0 +1,49 @@
+.winnerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.winnerBox {
+  background-color: white;
+  padding: 30px 50px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  animation: pop-in 0.4s ease-out;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.winnerBox h2 { margin-top: 0; font-size: 2em; }
+.winnerBox p { font-size: 1.2em; }
+.winnerName { font-weight: bold; text-transform: uppercase; }
+.red { color: var(--red); }
+.green { color: var(--green); }
+.yellow { color: var(--yellow); }
+.blue { color: var(--blue); }
+
+.restartButton {
+  margin-top: 15px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--green);
+  color: white;
+  transition: background-color 0.2s;
+}
+.restartButton:hover {
+  background-color: #27ae60;
+}
