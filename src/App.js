@@ -65,7 +65,8 @@ function App() {
       let captureOccurred = false;
       // Check if an opponent's piece was sent to base by the player who just moved
       for (const color of Object.keys(pieces)) {
-        if (color !== prevState.currentPlayer) {
+        // Only check opponent players that are actually in the game
+        if (color !== prevState.currentPlayer && prevState.pieces[color] && pieces[color]) {
           const prevBaseCount = prevState.pieces[color].filter(p => p.position === 'base').length;
           const newBaseCount = pieces[color].filter(p => p.position === 'base').length;
           if (newBaseCount > prevBaseCount) {

@@ -19,6 +19,8 @@ const Board = ({
   playerConfig,
 }) => {
   const renderBasePieces = (color) => {
+    if (!pieces[color]) return null;
+
     const basePieces = pieces[color].filter(p => p.position === 'base');
     const spots = Array(4).fill(null); // Create 4 spots
 
@@ -86,7 +88,7 @@ const Board = ({
   };
 
   const renderPlayerControls = (color) => {
-    if (color !== currentPlayer || winner) return null;
+    if (color !== currentPlayer || winner || !pieces[color]) return null;
 
     return (
       <div className="player-controls-active">
