@@ -1,10 +1,10 @@
-import React, { useReducer, useEffect, useRef } from 'react';
+import React, { useReducer, useEffect, useRef, useState } from 'react';
 import Board from './components/Board';
 import Dice from './components/Dice';
 import './Ludo.css';
 import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
-import { PLAYERS } from './gameLogic/core';
+import GameSetup from './components/GameSetup';
 
 function usePrevious(value) {
   const ref = useRef();
@@ -15,9 +15,15 @@ function usePrevious(value) {
 }
 
 function App() {
+  const [appState, setAppState] = useState('setup'); // 'setup', 'playing'
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winner } = state;
+  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winner, playerConfig } = state;
   const prevState = usePrevious(state);
+
+  const handleStartGame = (config) => {
+    dispatch({ type: 'START_GAME', payload: { playerConfig: config } });
+    setAppState('playing');
+  };
 
   const handleDiceRoll = () => {
     if (isRolling || gameState !== 'roll') return;
@@ -39,6 +45,7 @@ function App() {
   };
 
   const handleRestart = () => {
+    setAppState('setup');
     dispatch({ type: 'RESTART_GAME' });
   }
 
@@ -57,7 +64,7 @@ function App() {
     if (prevState.gameState === 'move' && gameState === 'roll') {
       let captureOccurred = false;
       // Check if an opponent's piece was sent to base by the player who just moved
-      for (const color of PLAYERS) {
+      for (const color of Object.keys(pieces)) {
         if (color !== prevState.currentPlayer) {
           const prevBaseCount = prevState.pieces[color].filter(p => p.position === 'base').length;
           const newBaseCount = pieces[color].filter(p => p.position === 'base').length;
@@ -70,6 +77,10 @@ function App() {
       playSound(captureOccurred ? 'capture' : 'move');
     }
   }, [state, prevState, pieces, gameState, winner]);
+
+  if (appState === 'setup') {
+    return <GameSetup onStartGame={handleStartGame} />;
+  }
 
   return (
     <div className="app">
@@ -86,9 +97,12 @@ function App() {
           isRolling={isRolling}
           handleDiceRoll={handleDiceRoll}
           gameState={gameState}
+          playerConfig={playerConfig}
         />
         <div className="controls">
-          <h2>Current Player: <span style={{ color: `var(--${currentPlayer})` }}>{currentPlayer.toUpperCase()}</span></h2>
+          <h2>Current Player: <span style={{ color: `var(--${currentPlayer})` }}>
+            {playerConfig[currentPlayer]?.name.toUpperCase() || currentPlayer.toUpperCase()}
+          </span></h2>
         </div>
       </div>
     </div>

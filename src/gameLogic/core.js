@@ -1,4 +1,4 @@
-export const PLAYERS = ['red', 'green', 'yellow', 'blue'];
+export const ALL_PLAYERS = ['red', 'green', 'yellow', 'blue'];
 
 // Correct, standard starting positions and game constants
 export const START_POSITIONS = { red: 0, green: 13, yellow: 26, blue: 39 };
@@ -13,7 +13,7 @@ export const SAFE_ZONES = [0, 8, 13, 21, 26, 34, 39, 47];
  */
 function calculateNewPosition(currentPos, roll, color) {
     const homeEntrance = HOME_ENTRANCES[color];
-    const homePathBase = HOME_PATH_START_INDEX + (PLAYERS.indexOf(color) * 6);
+    const homePathBase = HOME_PATH_START_INDEX + (ALL_PLAYERS.indexOf(color) * 6);
     const homePathEnd = homePathBase + 5;
 
     let newPos = currentPos;
@@ -49,7 +49,7 @@ function isOpponentBlockade(pieces, position, currentPlayer) {
     // A blockade is not effective on a safe zone
     if (SAFE_ZONES.includes(position)) return false;
 
-    for (const color of PLAYERS) {
+    for (const color of Object.keys(pieces)) {
         if (color !== currentPlayer) {
             if (pieces[color].filter(p => p.position === position).length >= 2) {
                 return true;
@@ -117,7 +117,7 @@ export function movePiece(pieces, player, pieceId, roll) {
 
     // Capture logic: check for opponents on the new square if it's not a safe zone
     if (typeof newPosition === 'number' && !SAFE_ZONES.includes(newPosition)) {
-        PLAYERS.forEach(color => {
+        Object.keys(pieces).forEach(color => {
             if (color !== player) {
                 const opponentPieces = newPieces[color].filter(p => p.position === newPosition);
                 // Can only capture if it's a single piece, not a blockade

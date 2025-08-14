@@ -16,6 +16,7 @@ const Board = ({
   isRolling,
   handleDiceRoll,
   gameState,
+  playerConfig,
 }) => {
   const renderBasePieces = (color) => {
     const basePieces = pieces[color].filter(p => p.position === 'base');
@@ -100,7 +101,7 @@ const Board = ({
   return (
     <div className="board-container">
       <div className="board">
-        <WinnerDisplay winner={winner} onRestart={onRestart} />
+        <WinnerDisplay winner={winner} onRestart={onRestart} playerConfig={playerConfig} />
         {renderSafeZones()}
         {renderTrackPieces()}
         <div className="player-area green-area">

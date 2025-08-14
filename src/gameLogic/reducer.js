@@ -1,25 +1,41 @@
-import { PLAYERS, getMovablePieces, movePiece, checkWin } from './core';
+import { ALL_PLAYERS, getMovablePieces, movePiece, checkWin } from './core';
 
-export const generateInitialPieces = () => {
+export const generateInitialPieces = (playerConfig) => {
     const pieces = {};
-    PLAYERS.forEach(color => {
-        pieces[color] = Array(4).fill(null).map((_, i) => ({ id: i, position: 'base' }));
+    ALL_PLAYERS.forEach(color => {
+        if (playerConfig[color]?.isActive) {
+            pieces[color] = Array(4).fill(null).map((_, i) => ({ id: i, position: 'base' }));
+        }
     });
     return pieces;
 };
 
 export const initialState = {
-    pieces: generateInitialPieces(),
+    pieces: {},
+    playerConfig: {},
     diceValue: 1,
-    currentPlayer: PLAYERS[0],
+    currentPlayer: null,
     isRolling: false,
     movablePieces: [],
-    gameState: 'roll', // 'roll', 'move', 'gameover'
+    gameState: 'setup', // 'setup', 'roll', 'move', 'gameover'
     winner: null,
 };
 
 export function gameReducer(state, action) {
     switch (action.type) {
+        case 'START_GAME': {
+            const { playerConfig } = action.payload;
+            const pieces = generateInitialPieces(playerConfig);
+            const activePlayers = Object.keys(pieces);
+            return {
+                ...initialState,
+                pieces,
+                playerConfig,
+                currentPlayer: activePlayers[0],
+                gameState: 'roll',
+            };
+        }
+
         case 'ROLL_DICE_START':
             return { ...state, isRolling: true };
 
@@ -38,13 +54,15 @@ export function gameReducer(state, action) {
             }
 
             // No moves possible, switch player unless it's a 6
-            const nextPlayerIndex = (PLAYERS.indexOf(state.currentPlayer) + 1) % PLAYERS.length;
+            const activePlayers = Object.keys(state.pieces);
+            const currentPlayerIndex = activePlayers.indexOf(state.currentPlayer);
+            const nextPlayerIndex = (currentPlayerIndex + 1) % activePlayers.length;
             return {
                 ...state,
                 diceValue: roll,
                 isRolling: false,
                 gameState: 'roll',
-                currentPlayer: roll === 6 ? state.currentPlayer : PLAYERS[nextPlayerIndex],
+                currentPlayer: roll === 6 ? state.currentPlayer : activePlayers[nextPlayerIndex],
             };
         }
         
@@ -64,11 +82,13 @@ export function gameReducer(state, action) {
 
             // Player gets another turn on a 6 or a capture. Otherwise, switch player.
             const getsAnotherTurn = state.diceValue === 6 || capture;
-            const nextPlayerIndex = (PLAYERS.indexOf(state.currentPlayer) + 1) % PLAYERS.length;
+            const activePlayers = Object.keys(state.pieces);
+            const currentPlayerIndex = activePlayers.indexOf(state.currentPlayer);
+            const nextPlayerIndex = (currentPlayerIndex + 1) % activePlayers.length;
             return {
                 ...state,
                 pieces: newPieces,
-                currentPlayer: getsAnotherTurn ? state.currentPlayer : PLAYERS[nextPlayerIndex],
+                currentPlayer: getsAnotherTurn ? state.currentPlayer : activePlayers[nextPlayerIndex],
                 gameState: 'roll',
                 movablePieces: [],
             };
