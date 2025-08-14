@@ -129,3 +129,21 @@
   color: rgba(0, 0, 0, 0.15);
   line-height: 1;
 }
+
+.playerControls {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.65);
+  transform-origin: bottom center;
+  z-index: 15;
+}
+
+.playerControls {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.65);
+  transform-origin: bottom center;
+  z-index: 15;
+}

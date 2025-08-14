@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Piece from './Piece';
+import Dice from './Dice';
 import styles from './Board.module.css';
 import { PATH_COORDINATES } from '../gameLogic/path';
 import { SAFE_ZONES } from '../gameLogic/core';
@@ -17,6 +18,10 @@ const Board = ({
   lastMovedPiece,
   animatingPiece,
   onAnimationComplete,
+  diceValue,
+  isRolling,
+  handleDiceRoll,
+  gameState,
 }) => {
   const [animatedPieceState, setAnimatedPieceState] = useState(null);
 
@@ -160,6 +165,26 @@ const Board = ({
     );
   };
 
+  const renderPlayerControls = (color) => {
+    // Only show controls for the current player if they are human
+    if (color !== currentPlayer || winner || animatingPiece || playerConfig[color]?.type !== 'human') {
+      return null;
+    }
+
+    const canRoll = gameState === 'roll';
+
+    return (
+      <div className={styles.playerControls}>
+        <Dice
+          diceValue={diceValue}
+          isRolling={isRolling}
+          onDiceRoll={handleDiceRoll}
+          disabled={!canRoll}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className={styles.boardContainer}>
       <div className={styles.board}>
@@ -169,20 +194,24 @@ const Board = ({
         {renderAnimatingPiece()}
         <div className={`${styles.playerArea} ${styles.greenArea}`}>
           <div className={styles.base}>{renderBasePieces('green')}</div>
+          {renderPlayerControls('green')}
         </div>
         <div className={`${styles.pathArm} ${styles.topArm}`}></div>
         <div className={`${styles.playerArea} ${styles.yellowArea}`}>
           <div className={styles.base}>{renderBasePieces('yellow')}</div>
+          {renderPlayerControls('yellow')}
         </div>
         <div className={`${styles.pathArm} ${styles.leftArm}`}></div>
         <div className={styles.centerHome}><div className={`${styles.homeTriangle} ${styles.homeTriangleGreen}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleYellow}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleBlue}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleRed}`}></div></div>
         <div className={`${styles.pathArm} ${styles.rightArm}`}></div>
         <div className={`${styles.playerArea} ${styles.redArea}`}>
           <div className={styles.base}>{renderBasePieces('red')}</div>
+          {renderPlayerControls('red')}
         </div>
         <div className={`${styles.pathArm} ${styles.bottomArm}`}></div>
         <div className={`${styles.playerArea} ${styles.blueArea}`}>
           <div className={styles.base}>{renderBasePieces('blue')}</div>
+          {renderPlayerControls('blue')}
         </div>
       </div>
     </div>

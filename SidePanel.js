@@ -1,5 +1,4 @@
 import React from 'react';
-import Dice from './Dice';
 import WinnerDisplay from './WinnerDisplay';
 import styles from './SidePanel.module.css';
 
@@ -7,8 +6,6 @@ const SidePanel = ({
   playerConfig,
   currentPlayer,
   diceValue,
-  isRolling,
-  handleDiceRoll,
   gameState,
   winner,
   onRestart,
@@ -28,12 +25,6 @@ const SidePanel = ({
               {playerConfig[currentPlayer]?.name.toUpperCase() || currentPlayer.toUpperCase()}
             </span>
           </div>
-          <Dice
-            diceValue={diceValue}
-            isRolling={isRolling}
-            onDiceRoll={handleDiceRoll}
-            disabled={!canRoll}
-          />
           <p className={styles.gameStatus}>
             {gameState === 'roll' ? 'Roll the dice!' : 'Move your piece!'}
           </p>

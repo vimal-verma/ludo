@@ -6,7 +6,6 @@ import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
 import { getPiecePath, checkCapture, getAIMove } from './gameLogic/core';
 import GameSetup from './components/GameSetup';
-import SidePanel from './components/SidePanel';
 
 function usePrevious(value) {
   const ref = useRef();
@@ -132,16 +131,10 @@ function App() {
           winner={winner}
           onRestart={handleRestart}
           playerConfig={playerConfig}
-        />
-        <SidePanel
-          playerConfig={playerConfig}
-          currentPlayer={currentPlayer}
           diceValue={diceValue}
           isRolling={isRolling}
           handleDiceRoll={handleDiceRoll}
           gameState={gameState}
-          winner={winner}
-          onRestart={handleRestart}
         />
       </div>
     </div>

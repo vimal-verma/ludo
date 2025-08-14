@@ -1,11 +1,17 @@
 # Ludo Game Application
-This project is a fully-featured digital version of the classic board game Ludo, built with React. It supports 2-4 players, including challenging AI opponents, and implements the complete ruleset with modern UI enhancements.
+
+This project is a fully-featured digital version of the classic board game Ludo, built with React. It supports 2-4 players, including challenging AI opponents, and implements the complete ruleset with a modern, interactive UI.
 
 ## Features
 
 - **Dynamic Player Setup**: Configure games for 2, 3, or 4 players.
 - **Human & AI Players**: Each player can be set as 'Human' or 'AI'.
 - **Custom Player Names**: Assign custom names to each player for a personalized experience.
+- **Interactive UI & UX**:
+  - Dice controls are intuitively placed within each active player's base area.
+  - Smooth, step-by-step piece animations provide clear visual feedback on every move.
+  - Sound effects for key events like dice rolls, piece movement, captures, and winning.
+  - Visual indicators for movable pieces, the last-moved piece, and safe zones.
 - **Complete Ludo Ruleset**:
   - Dice rolling and piece movement.
   - Capturing opponent pieces.
@@ -13,23 +19,17 @@ This project is a fully-featured digital version of the classic board game Ludo,
   - Blockades (two of a player's pieces on the same square) to block opponents.
   - Exact roll required to move a piece into the home triangle.
   - Win condition detection when a player gets all four pieces home.
-- **Interactive UI & UX**:
-  - Smooth, step-by-step piece animations for clear visual feedback.
-  - Sound effects for key events like dice rolls, piece movement, captures, and winning.
-  - Visual indicators for movable pieces, the last-moved piece, and safe zones.
-- **Real-time Game Log**: A side panel displays a history of all major game events.
-- **Strategic AI**: The AI uses a scoring system to make intelligent decisions about which piece to move, including forming and breaking blockades.
+- **Strategic AI**: The AI uses a sophisticated scoring system to make intelligent decisions about which piece to move, weighing options like capturing, moving home, and forming blockades.
 
 ## Project Structure
 
 The project is organized to separate UI components from the core game logic, making it easier to maintain and debug.
 
-```
+```txt
 src/
 ├── components/       # Reusable React components for the UI
 │   ├── Board.js
 │   ├── Dice.js
-│   ├── GameLog.js
 │   ├── GameSetup.js
 │   ├── Piece.js
 │   └── WinnerDisplay.js
