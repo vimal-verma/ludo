@@ -103,6 +103,39 @@ export function getMovablePieces(pieces, player, roll) {
 }
 
 /**
+ * Calculates the full path a piece will take for a given roll.
+ * @returns {number[]} An array of position indices for each step.
+ */
+export function getPiecePath(startPos, roll, color) {
+    if (startPos === 'base') {
+        // A piece coming out of base just lands on the start square.
+        return [START_POSITIONS[color]];
+    }
+
+    const path = [];
+    let currentPos = startPos;
+    for (let i = 0; i < roll; i++) {
+        const nextPos = calculateNewPosition(currentPos, 1, color);
+        path.push(nextPos);
+        currentPos = nextPos;
+    }
+    return path;
+}
+
+/**
+ * Checks if a move will result in a capture without actually performing it.
+ */
+export function checkCapture(pieces, player, pieceId, roll) {
+    const pieceToMove = pieces[player].find(p => p.id === pieceId);
+    const newPosition = calculateNewPosition(pieceToMove.position, roll, player);
+
+    if (typeof newPosition === 'number' && !SAFE_ZONES.includes(newPosition)) {
+        return Object.keys(pieces).some(color => color !== player && pieces[color] && pieces[color].some(p => p.position === newPosition));
+    }
+    return false;
+}
+
+/**
  * Moves a piece and handles captures.
  * @returns {{pieces: object, capture: boolean}} The new pieces state and whether a capture occurred.
  */

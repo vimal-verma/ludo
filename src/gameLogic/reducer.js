@@ -19,6 +19,8 @@ export const initialState = {
     movablePieces: [],
     gameState: 'setup', // 'setup', 'roll', 'move', 'gameover'
     winner: null,
+    log: [],
+    lastMovedPiece: null,
 };
 
 export function gameReducer(state, action) {
@@ -33,6 +35,8 @@ export function gameReducer(state, action) {
                 playerConfig,
                 currentPlayer: activePlayers[0],
                 gameState: 'roll',
+                log: [{ message: 'Game started!', type: 'info' }],
+                lastMovedPiece: null,
             };
         }
 
@@ -41,6 +45,7 @@ export function gameReducer(state, action) {
 
         case 'ROLL_DICE_COMPLETE': {
             const { roll } = action.payload;
+            const playerName = state.playerConfig[state.currentPlayer]?.name || state.currentPlayer;
             const movables = getMovablePieces(state.pieces, state.currentPlayer, roll);
 
             if (movables.length > 0) {
@@ -50,6 +55,7 @@ export function gameReducer(state, action) {
                     isRolling: false,
                     movablePieces: movables,
                     gameState: 'move',
+                    log: [...state.log, { message: `${playerName} rolled a ${roll}.`, type: 'roll' }],
                 };
             }
 
@@ -63,12 +69,24 @@ export function gameReducer(state, action) {
                 isRolling: false,
                 gameState: 'roll',
                 currentPlayer: roll === 6 ? state.currentPlayer : activePlayers[nextPlayerIndex],
+                log: [...state.log, { message: `${playerName} rolled a ${roll}, but has no moves.`, type: 'roll' }],
             };
         }
         
         case 'MOVE_PIECE': {
             const { pieceId } = action.payload;
+            const playerName = state.playerConfig[state.currentPlayer]?.name || state.currentPlayer;
             const { pieces: newPieces, capture } = movePiece(state.pieces, state.currentPlayer, pieceId, state.diceValue);
+            const newPieceState = newPieces[state.currentPlayer].find(p => p.id === pieceId);
+
+            let logEntry = { type: 'move', message: `${playerName} moved a piece.` };
+            if (capture) {
+                logEntry = { type: 'capture', message: `${playerName} captured an opponent's piece!` };
+            } else if (newPieceState.position === 'home') {
+                logEntry = { type: 'move', message: `${playerName} brought a piece home!` };
+            }
+
+            const newLog = [...state.log, logEntry];
             
             if (checkWin(newPieces, state.currentPlayer)) {
                 return {
@@ -77,6 +95,8 @@ export function gameReducer(state, action) {
                     gameState: 'gameover',
                     winner: state.currentPlayer,
                     movablePieces: [],
+                    log: [...newLog, { message: `${playerName} wins the game!`, type: 'win' }],
+                    lastMovedPiece: { color: state.currentPlayer, id: pieceId },
                 };
             }
 
@@ -91,6 +111,8 @@ export function gameReducer(state, action) {
                 currentPlayer: getsAnotherTurn ? state.currentPlayer : activePlayers[nextPlayerIndex],
                 gameState: 'roll',
                 movablePieces: [],
+                log: newLog,
+                lastMovedPiece: { color: state.currentPlayer, id: pieceId },
             };
         }
 
