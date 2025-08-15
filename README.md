@@ -50,15 +50,46 @@ src/
 ```
 
 ## Core Game Logic (`src/gameLogic/core.js`)
+## Game Logic
 
-This file is the heart of the application and contains all the rules.
+This file is the heart of the application and contains all the rules. 
+The src/gameLogic/ directory contains the engine of the game, completely separated from the UI.
 
+### Core Rules (core.js) 
+--This file contains all the fundamental rules and calculations for the game. 
 - **Constants**: Defines key game parameters like `START_POSITIONS`, `HOME_ENTRANCES`, `SAFE_ZONES`, and `TOTAL_TRACK_SQUARES`.
 - **`calculateNewPosition(currentPos, roll, color)`**: A pure function that takes a piece's current position and a dice roll and returns its new position, handling home path entry and overshooting.
++- isOpponentBlockade(pieces, position, currentPlayer): Checks if a square is blocked by two or more of an opponent's pieces. 
 - **`getMovablePieces(pieces, player, roll)`**: Determines which of a player's pieces can legally move based on the dice roll, checking for blockades and other restrictions.
-- **`movePiece(pieces, player, pieceId, roll)`**: Returns a new `pieces` state object after a move is performed, handling captures.
-- **`getAIMove(pieces, player, movablePieces, diceValue)`**: The AI's "brain." It scores each possible move based on a set of strategic priorities (e.g., capturing, forming blockades, getting home) and returns the ID of the best piece to move.
 - **`getPiecePath(startPos, roll, color)`**: Calculates the step-by-step path a piece will take, which is used to drive the hopping animation.
+- **`checkCapture(pieces, player, pieceId, roll)`**: Checks if a move will result in a capture. 
+- **`movePiece(pieces, player, pieceId, roll)`**: Returns a new `pieces` state object after a move is performed, handling captures.
+- **`checkWin(pieces, player)`**: Checks if a player has moved all their pieces home. 
++- AI Logic (ai.js) + +This file contains the AI's "brain." The AI uses a sophisticated scoring system to evaluate every possible move and select the one with the highest score. It plays strategically, balancing offense and defense. 
+#### Helper Functions 
+-- getDistanceToHome(piece, color): Calculates how many steps a piece is from reaching home. This is a key metric used in multiple scoring calculations to determine a piece's value and progress. 
++- isPositionInDanger(pieces, position, playerColor): Checks if an opponent's piece is within 1-6 squares behind a given position, posing a capture threat. This is crucial for risk assessment. 
+#### Main AI Function: 
+- **`getAIMove(pieces, player, movablePieces, diceValue)`**: The AI's "brain." It scores each possible move based on a set of strategic priorities (e.g., capturing, forming blockades, getting home) and returns the ID of the best piece to move.
+##### Positive Scores (Incentives) 
++- +1000: Getting a piece home. This is the ultimate goal and is weighted highest. 
++- +500: Capturing an opponent's piece.
+
+An additional bonus (opponentProgress * 3) is added based on how far the captured piece had traveled, making it more rewarding to capture advanced pieces. 
++- +400: Moving a piece out of the base. A critical early-game objective. +- +120: Landing on a safe zone. 
++- +50: Forming a blockade (two of its own pieces on one square).
+An additional +100 is awarded if the blockade is on an opponent's starting square, as this is a powerful strategic move. 
++- +50: A small bonus for moving the piece that is furthest behind, encouraging the AI to not leave pieces stranded. 
++- + (progress * 5): A base score for making progress around the board.
+##### Negative Scores (Penalties) 
++- -500: Moving a piece off a safe zone without a good reason (i.e., the move doesn't result in a capture, going home, or landing on another safe zone). This makes the AI "camp" on safe spots patiently. 
++- -300: Moving into a position where it can be captured.
+
+An additional penalty (selfProgress * 5) is applied based on the piece's own progress, making the AI highly protective of its most advanced pieces. 
++- -150: Breaking up its own blockade, unless the move is for a high-value action like capturing an opponent.
++The AI then chooses the move with the highest total score. If all moves have a negative score, it will still choose the "least bad" option.
+
+
 
 ## State Management (`src/gameLogic/reducer.js`)
 
