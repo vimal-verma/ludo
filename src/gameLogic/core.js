@@ -220,7 +220,9 @@ export function getAIMove(pieces, player, movablePieces, diceValue) {
         const piece = playerPieces.find(p => p.id === pieceId);
         let score = 0;
 
-        const finalPos = calculateNewPosition(piece.position, diceValue, player);
+        const finalPos = piece.position === 'base'
+            ? START_POSITIONS[player]
+            : calculateNewPosition(piece.position, diceValue, player);
         if (finalPos === null) continue; // Should not happen if piece is in movablePieces, but as a safeguard.
 
         // --- Positive Scores (Incentives) ---

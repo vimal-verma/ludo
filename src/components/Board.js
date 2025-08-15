@@ -74,10 +74,11 @@ const Board = ({
 
     return spots.map((_, index) => {
       const piece = basePieces[index];
+      const isAnimatingThisPiece = piece && animatingPiece && color === animatingPiece.color && piece.id === animatingPiece.id;
       const isLastMoved = piece && lastMovedPiece && lastMovedPiece.color === color && lastMovedPiece.id === piece.id;
       return (
         <div key={index} className={styles.baseSpot}>
-          {piece && (
+          {piece && !isAnimatingThisPiece && (
             <Piece
               color={color}
               id={piece.id}
@@ -98,7 +99,7 @@ const Board = ({
     Object.keys(pieces).forEach(color => {
       pieces[color].forEach(piece => {
         // Hide the original piece while its animated copy is moving
-        if (animatingPiece && piece.color === animatingPiece.color && piece.id === animatingPiece.id) {
+        if (animatingPiece && color === animatingPiece.color && piece.id === animatingPiece.id) {
           return;
         }
 
@@ -168,7 +169,7 @@ const Board = ({
 
   const renderPlayerControls = (color) => {
     // Only show controls for the current player
-    if (color !== currentPlayer || winner || animatingPiece) {
+    if (color !== currentPlayer || gameState === 'gameover' || animatingPiece) {
       return null;
     }
 
