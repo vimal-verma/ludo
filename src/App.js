@@ -4,7 +4,8 @@ import './Ludo.css';
 import styles from './App.module.css';
 import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
-import { getPiecePath, checkCapture, getAIMove } from './gameLogic/core';
+import { getPiecePath, checkCapture } from './gameLogic/core';
+import { getAIMove } from './gameLogic/ai';
 import GameSetup from './components/GameSetup';
 import WinnerAnnouncer from './components/WinnerAnnouncer';
 

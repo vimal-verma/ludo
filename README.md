@@ -1,25 +1,26 @@
 # Ludo Game Application
 
-This project is a fully-featured digital version of the classic board game Ludo, built with React. It supports 2-4 players, including challenging AI opponents, and implements the complete ruleset with a modern, interactive UI.
+This project is a fully-featured digital version of the classic board game Ludo, built with React. It supports 2-4 players, including challenging AI opponents, and implements a complete ruleset with a modern, interactive UI and fluid animations.
 
 ## Features
 
 - **Dynamic Player Setup**: Configure games for 2, 3, or 4 players.
 - **Human & AI Players**: Each player can be set as 'Human' or 'AI'.
 - **Custom Player Names**: Assign custom names to each player for a personalized experience.
+- **Advanced AI**: The AI uses a sophisticated scoring system to make intelligent decisions, weighing risks and rewards for actions like capturing, moving to safety, getting pieces home, and blocking opponents.
 - **Interactive UI & UX**:
   - Dice controls are intuitively placed within each active player's base area.
   - Smooth, step-by-step piece animations provide clear visual feedback on every move.
   - Sound effects for key events like dice rolls, piece movement, captures, and winning.
   - Visual indicators for movable pieces, the last-moved piece, and safe zones.
+- **Multi-Winner Gameplay**: The game doesn't end when the first player wins. It continues until 2nd, 3rd, and 4th place are decided, keeping all players engaged.
 - **Complete Ludo Ruleset**:
   - Dice rolling and piece movement.
   - Capturing opponent pieces.
   - Safe zones (starred squares) where pieces cannot be captured.
-  - Blockades (two of a player's pieces on the same square) to block opponents.
+  - Blockades (two of a player's pieces on the same square) prevent opponents from landing on that square, but do not block them from passing over.
   - Exact roll required to move a piece into the home triangle.
   - Win condition detection when a player gets all four pieces home.
-- **Strategic AI**: The AI uses a sophisticated scoring system to make intelligent decisions about which piece to move, weighing options like capturing, moving home, and forming blockades.
 
 ## Project Structure
 
@@ -27,23 +28,25 @@ The project is organized to separate UI components from the core game logic, mak
 
 ```txt
 src/
-├── components/       # Reusable React components for the UI
-│   ├── Board.js
-│   ├── Dice.js
-│   ├── GameSetup.js
-│   ├── Piece.js
-│   └── WinnerDisplay.js
-│
+├── components/         # Reusable React components for the UI
+│   ├── Board.js        # Renders the entire game board, pieces, and player areas.
+│   ├── Dice.js         # Visual dice component with rolling animation.
+│   ├── GameSetup.js    # The initial screen for configuring players.
+│   ├── Piece.js        # Renders a single game piece.
+│   ├── WinnerAnnouncer.js # Modal to announce when a player finishes (e.g., 1st, 2nd).
+│   └── WinnerDisplay.js  # Final game-over screen with rankings.
+│ 
 ├── gameLogic/        # Core game state and rules, decoupled from the UI
-│   ├── core.js       # Pure functions defining all game rules and AI logic
-│   ├── path.js       # Defines the board layout and piece coordinates
+│   ├── ai.js         # Contains all logic for AI decision-making.
+│   ├── core.js       # Pure functions defining all core game rules.
+│   ├── path.js       # Defines the board layout and piece coordinates.
 │   └── reducer.js    # State management logic using useReducer
 │
-├── utils/            # Utility functions
-│   └── sounds.js     # Helper for playing sound effects
+├── utils/              # Utility functions
+│   └── sounds.js       # Helper for playing sound effects
 │
-├── App.js            # Main application component, orchestrating state and UI
-└── Ludo.css          # All application styles
+├── App.js              # Main application component, orchestrating state and UI
+└── Ludo.css            # Global and root styles for the application
 ```
 
 ## Core Game Logic (`src/gameLogic/core.js`)
