@@ -70,6 +70,7 @@
   grid-area: center;
   position: relative;
   background-color: white;
+  z-index: 2; /* Ensure it contains the pieces properly */
 }
 
 .homeTriangle {
@@ -79,9 +80,9 @@
   border-style: solid;
 }
 
-.homeTriangleGreen { border-width: 0 50% 100% 50%; border-color: transparent transparent var(--green) transparent; top: 0; left: 0; width: 100%; height: 50%; }
-.homeTriangleYellow { border-width: 100% 50% 0 50%; border-color: var(--yellow) transparent transparent transparent; bottom: 0; left: 0; width: 100%; height: 50%; }
-.homeTriangleRed { border-width: 50% 100% 50% 0; border-color: transparent var(--red) transparent transparent; left: 0; top: 0; width: 50%; height: 100%; }
+.homeTriangleGreen { border-width: 50% 100% 50% 0; border-color: transparent var(--green) transparent transparent; left: 0; top: 0; width: 50%; height: 100%; }
+.homeTriangleYellow { border-width: 0 50% 100% 50%; border-color: transparent transparent var(--yellow) transparent; top: 0; left: 0; width: 100%; height: 50%; }
+.homeTriangleRed { border-width: 100% 50% 0 50%; border-color: var(--red) transparent transparent transparent; bottom: 0; left: 0; width: 100%; height: 50%; }
 .homeTriangleBlue { border-width: 50% 0 50% 100%; border-color: transparent transparent transparent var(--blue); right: 0; top: 0; width: 50%; height: 100%; }
 
 .trackPieceContainer {
@@ -147,3 +148,33 @@
   transform-origin: bottom center;
   z-index: 15;
 }
+
+/* Completed Pieces in Center */
+.homePieceArea {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  width: calc(var(--cell-size) * 2.4);
+  height: calc(var(--cell-size) * 2.4);
+  padding: 4px;
+  box-sizing: border-box;
+  z-index: 5;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.homePieceAreaRed { bottom: 10%; left: 50%; transform: translateX(-50%); }
+.homePieceAreaGreen { top: 50%; left: 10%; transform: translateY(-50%); }
+.homePieceAreaYellow { top: 10%; left: 50%; transform: translateX(-50%); }
+.homePieceAreaBlue { top: 50%; right: 10%; transform: translateY(-50%); }
+
+.homePieceSlot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+

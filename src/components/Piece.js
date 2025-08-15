@@ -1,12 +1,13 @@
 import React from 'react';
 import styles from './Piece.module.css';
 
-const Piece = ({ color, onClick, isMovable, isLastMoved }) => {
+const Piece = ({ color, onClick, isMovable, isLastMoved, isHome }) => {
   const pieceClasses = [
     styles.piece,
     styles[color],
     isMovable ? styles.movable : '',
-    isLastMoved ? styles.lastMoved : ''
+    isLastMoved ? styles.lastMoved : '',
+    isHome ? styles.homePiece : ''
   ].join(' ');
 
   return (

@@ -33,3 +33,9 @@
 .green { background-color: var(--green); }
 .yellow { background-color: var(--yellow); }
 .blue { background-color: var(--blue); }
+
+
+.homePiece {
+  transform: scale(0.65);
+  cursor: default;
+}

@@ -167,6 +167,27 @@ const Board = ({
     );
   };
 
+  const renderCompletedPieces = () => {
+    return Object.keys(pieces).map(color => {
+      if (!pieces[color]) return null;
+      const homePieces = pieces[color].filter(p => p.position === 'home');
+      if (homePieces.length === 0) return null;
+
+      // Create 4 slots to be filled by the home pieces
+      const slots = Array(4).fill(null);
+
+      return (
+        <div key={color} className={`${styles.homePieceArea} ${styles[`homePieceArea${color.charAt(0).toUpperCase() + color.slice(1)}`]}`}>
+          {slots.map((_, index) => (
+            <div key={index} className={styles.homePieceSlot}>
+              {homePieces[index] && <Piece color={color} isHome={true} />}
+            </div>
+          ))}
+        </div>
+      );
+    });
+  };
+
   const renderPlayerControls = (color) => {
     // Only show controls for the current player
     if (color !== currentPlayer || gameState === 'gameover' || animatingPiece) {
@@ -206,7 +227,13 @@ const Board = ({
           {renderPlayerControls('yellow')}
         </div>
         <div className={`${styles.pathArm} ${styles.leftArm}`}></div>
-        <div className={styles.centerHome}><div className={`${styles.homeTriangle} ${styles.homeTriangleGreen}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleYellow}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleBlue}`}></div><div className={`${styles.homeTriangle} ${styles.homeTriangleRed}`}></div></div>
+        <div className={styles.centerHome}>
+          <div className={`${styles.homeTriangle} ${styles.homeTriangleGreen}`}></div>
+          <div className={`${styles.homeTriangle} ${styles.homeTriangleYellow}`}></div>
+          <div className={`${styles.homeTriangle} ${styles.homeTriangleBlue}`}></div>
+          <div className={`${styles.homeTriangle} ${styles.homeTriangleRed}`}></div>
+          {renderCompletedPieces()}
+        </div>
         <div className={`${styles.pathArm} ${styles.rightArm}`}></div>
         <div className={`${styles.playerArea} ${styles.redArea}`}>
           <div className={styles.base}>{renderBasePieces('red')}</div>
