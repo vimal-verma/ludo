@@ -6,8 +6,9 @@
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3); 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3), inset 0 -3px 3px rgba(0,0,0,0.2); 
     transition: transform 0.2s ease; 
+    background-image: radial-gradient(circle at 50% 20%, #ffffff, rgba(255,255,255,0) 70%);
 }
 
 .movable {
@@ -17,23 +18,20 @@
 }
 
 @keyframes pulse { 
-    0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.5); } 
-    70% { box-shadow: 0 0 0 10px rgba(74, 144, 226, 0); } 
-    100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); } 
+    0% { transform: scale(1.1); } 
+    50% { transform: scale(1.15); } 
+    100% { transform: scale(1.1); } 
 }
 
 .lastMoved {
-  outline: 3px solid #ffeb3b; /* Bright yellow outline */
-  outline-offset: 2px;
+  box-shadow: 0 0 12px 4px #ffeb3b, 2px 2px 5px rgba(0,0,0,0.3), inset 0 -3px 3px rgba(0,0,0,0.2);
   z-index: 12; /* Ensure outline is visible over other pieces */
 }
 
-.pieceInner { width: 60%; height: 60%; border-radius: 50%; background-color: white; border: 1px solid black; }
 .red { background-color: var(--red); }
 .green { background-color: var(--green); }
 .yellow { background-color: var(--yellow); }
 .blue { background-color: var(--blue); }
-
 
 .homePiece {
   transform: scale(0.65);

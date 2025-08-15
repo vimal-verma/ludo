@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ALL_PLAYERS } from '../gameLogic/core';
+import styles from './GameSetup.module.css';
 
 const GameSetup = ({ onStartGame }) => {
   const [playerConfig, setPlayerConfig] = useState(
@@ -40,38 +41,37 @@ const GameSetup = ({ onStartGame }) => {
   };
 
   return (
-    <div className="game-setup">
+    <div className={styles.gameSetup}>
       <h2>Game Setup</h2>
       <p>Configure players and names. You need at least 2 players.</p>
-      <div className="player-config-list">
+      <div className={styles.playerConfigList}>
         {ALL_PLAYERS.map(color => (
-          <div key={color} className={`player-config-item ${color}`}>
+          <div key={color} className={`${styles.playerConfigItem} ${styles[color]}`}>
             <label>
               <input
                 type="checkbox"
                 checked={playerConfig[color].isActive}
                 onChange={() => handleTogglePlayer(color)}
               />
-              <span className="player-color-box"></span>
             </label>
             <input
               type="text"
               value={playerConfig[color].name}
               onChange={(e) => handleNameChange(color, e.target.value)}
               disabled={!playerConfig[color].isActive}
-              placeholder="Enter name"
+              placeholder={`Enter ${color} name`}
             />
             <button
               onClick={() => handleTypeChange(color)}
               disabled={!playerConfig[color].isActive}
-              className="player-type-button"
+              className={styles.playerTypeButton}
             >
               {playerConfig[color].type.toUpperCase()}
             </button>
           </div>
         ))}
       </div>
-      <button onClick={handleStart} className="start-game-button">Start Game</button>
+      <button onClick={handleStart} className={styles.startGameButton}>Start Game</button>
     </div>
   );
 };

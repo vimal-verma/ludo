@@ -12,7 +12,6 @@ const Piece = ({ color, onClick, isMovable, isLastMoved, isHome }) => {
 
   return (
     <div className={pieceClasses} onClick={onClick}>
-      <div className={styles.pieceInner}></div>
     </div>
   );
 };

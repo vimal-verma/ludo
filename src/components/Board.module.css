@@ -15,9 +15,9 @@
   grid-template-columns: var(--base-size) 1fr var(--base-size);
   grid-template-rows: var(--base-size) 1fr var(--base-size);
   grid-template-areas:
-    "green-area top-arm yellow-area"
-    "left-arm   center   right-arm"
-    "red-area   bottom-arm blue-area";
+    "green-area . yellow-area"
+    ".   center   ."
+    "red-area   . blue-area";
 }
 
 .playerArea {
@@ -26,6 +26,7 @@
   align-items: center;
   padding: 10px;
   position: relative;
+  box-shadow: inset 0 0 25px rgba(0,0,0,0.3);
 }
 
 .greenArea { grid-area: green-area; background-color: var(--green); }
@@ -37,13 +38,14 @@
   width: 75%;
   height: 75%;
   background-color: white;
-  border: 2px solid #333;
-  border-radius: 10px;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: 15px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   padding: 5%;
   gap: 5%;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
 }
 
 .baseSpot {
@@ -53,18 +55,6 @@
     border: 2px dashed #ccc;
     border-radius: 50%;
 }
-
-.pathArm {
-    background-image: 
-        repeating-linear-gradient(to bottom, #ccc 0, #ccc 1px, transparent 1px, transparent var(--cell-size)),
-        repeating-linear-gradient(to right, #ccc 0, #ccc 1px, transparent 1px, transparent var(--cell-size));
-    background-size: var(--cell-size) var(--cell-size);
-    background-color: #e0e0e0;
-}
-.topArm { grid-area: top-arm; }
-.leftArm { grid-area: left-arm; }
-.rightArm { grid-area: right-arm; }
-.bottomArm { grid-area: bottom-arm; }
 
 .centerHome {
   grid-area: center;
@@ -127,8 +117,32 @@
 .safeZoneMarker::after {
   content: '★';
   font-size: calc(var(--cell-size) * 0.9);
-  color: rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.2);
   line-height: 1;
+  text-shadow: 0 0 2px white;
+}
+
+.pathCell {
+  position: absolute;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background-color: #f0f0f0;
+  border: 1px solid #dcdcdc;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.pathCellRed {
+  background-color: hsl(0, 80%, 90%);
+}
+.pathCellGreen {
+  background-color: hsl(120, 80%, 90%);
+}
+.pathCellYellow {
+  background-color: hsl(60, 80%, 90%);
+}
+.pathCellBlue {
+  background-color: hsl(210, 80%, 90%);
 }
 
 .playerControls {
@@ -176,5 +190,3 @@
   justify-content: center;
   align-items: center;
 }
-
-

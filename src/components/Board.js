@@ -188,6 +188,31 @@ const Board = ({
     });
   };
 
+  const renderPathCells = () => {
+    const cells = [];
+    const homePathConfig = {
+      red: { start: 52, end: 57 },
+      green: { start: 58, end: 63 },
+      yellow: { start: 64, end: 69 },
+      blue: { start: 70, end: 75 },
+    };
+
+    // Render all 76 potential cell positions
+    for (let i = 0; i < 76; i++) {
+      let colorClass = '';
+      for (const color in homePathConfig) {
+        if (i >= homePathConfig[color].start && i <= homePathConfig[color].end) {
+          colorClass = styles[`pathCell${color.charAt(0).toUpperCase() + color.slice(1)}`];
+          break;
+        }
+      }
+      if (PATH_COORDINATES[i]) {
+        cells.push(<div key={`path-${i}`} className={`${styles.pathCell} ${colorClass}`} style={PATH_COORDINATES[i]} />);
+      }
+    }
+    return cells;
+  };
+
   const renderPlayerControls = (color) => {
     // Only show controls for the current player
     if (color !== currentPlayer || gameState === 'gameover' || animatingPiece) {
@@ -214,6 +239,7 @@ const Board = ({
     <div className={styles.boardContainer}>
       <div className={styles.board}>
         {gameState === 'gameover' && winner && <WinnerDisplay winner={winner} winners={winners} onRestart={onRestart} playerConfig={playerConfig} />}
+        {renderPathCells()}
         {renderSafeZones()}
         {renderTrackPieces()}
         {renderAnimatingPiece()}
@@ -221,12 +247,10 @@ const Board = ({
           <div className={styles.base}>{renderBasePieces('green')}</div>
           {renderPlayerControls('green')}
         </div>
-        <div className={`${styles.pathArm} ${styles.topArm}`}></div>
         <div className={`${styles.playerArea} ${styles.yellowArea}`}>
           <div className={styles.base}>{renderBasePieces('yellow')}</div>
           {renderPlayerControls('yellow')}
         </div>
-        <div className={`${styles.pathArm} ${styles.leftArm}`}></div>
         <div className={styles.centerHome}>
           <div className={`${styles.homeTriangle} ${styles.homeTriangleGreen}`}></div>
           <div className={`${styles.homeTriangle} ${styles.homeTriangleYellow}`}></div>
@@ -234,12 +258,10 @@ const Board = ({
           <div className={`${styles.homeTriangle} ${styles.homeTriangleRed}`}></div>
           {renderCompletedPieces()}
         </div>
-        <div className={`${styles.pathArm} ${styles.rightArm}`}></div>
         <div className={`${styles.playerArea} ${styles.redArea}`}>
           <div className={styles.base}>{renderBasePieces('red')}</div>
           {renderPlayerControls('red')}
         </div>
-        <div className={`${styles.pathArm} ${styles.bottomArm}`}></div>
         <div className={`${styles.playerArea} ${styles.blueArea}`}>
           <div className={styles.base}>{renderBasePieces('blue')}</div>
           {renderPlayerControls('blue')}
