@@ -6,6 +6,7 @@ import { gameReducer, initialState } from './gameLogic/reducer';
 import { playSound } from './utils/sounds';
 import { getPiecePath, checkCapture, getAIMove } from './gameLogic/core';
 import GameSetup from './components/GameSetup';
+import WinnerAnnouncer from './components/WinnerAnnouncer';
 
 function usePrevious(value) {
   const ref = useRef();
@@ -18,9 +19,11 @@ function usePrevious(value) {
 function App() {
   const [appState, setAppState] = useState('setup'); // 'setup', 'playing'
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winner, playerConfig, lastMovedPiece } = state;
+  const { pieces, diceValue, currentPlayer, isRolling, movablePieces, gameState, winners, playerConfig, lastMovedPiece } = state;
+  const winner = winners?.[0] || null;
   const [animatingPiece, setAnimatingPiece] = useState(null);
-  const prevState = usePrevious(state);
+  const [announcedWinner, setAnnouncedWinner] = useState(null);
+  const prevState = usePrevious({ ...state, announcedWinner });
 
   const handleStartGame = (config) => {
     dispatch({ type: 'START_GAME', payload: { playerConfig: config } });
@@ -70,21 +73,38 @@ function App() {
 
   const handleRestart = () => {
     setAppState('setup');
+    setAnnouncedWinner(null);
     setAnimatingPiece(null);
     dispatch({ type: 'RESTART_GAME' });
   }
 
+  const handleAcknowledgeWinner = () => {
+    setAnnouncedWinner(null);
+  };
+
+  // Effect to show winner announcement
   useEffect(() => {
-    // Play win sound when a winner is declared
-    if (winner && (!prevState || !prevState.winner)) {
-      playSound('win');
+    if (winners && prevState?.winners && winners.length > prevState.winners.length) {
+      const newWinner = winners[winners.length - 1];
+      // Only announce if the game is not over yet
+      if (gameState !== 'gameover') {
+        setAnnouncedWinner(newWinner);
+        playSound('win'); // Play sound for each player finishing
+      }
     }
-  }, [winner, prevState]);
+  }, [winners, prevState?.winners, gameState]);
+
+  // Effect for final game over sound
+  useEffect(() => {
+    if (gameState === 'gameover' && prevState?.gameState !== 'gameover') {
+        playSound('win'); // Or a different "game over" sound
+    }
+  }, [gameState, prevState?.gameState]);
 
   // Effect for AI dice rolling
   useEffect(() => {
     const isAITurn = playerConfig[currentPlayer]?.type === 'ai';
-    if (!isAITurn || gameState !== 'roll' || winner || animatingPiece) {
+    if (!isAITurn || gameState !== 'roll' || gameState === 'gameover' || animatingPiece || announcedWinner) {
       return;
     }
 
@@ -92,12 +112,12 @@ function App() {
       handleDiceRoll();
     }, 1000); // Delay for AI "thinking" before rolling
     return () => clearTimeout(timer);
-  }, [gameState, currentPlayer, winner, animatingPiece, playerConfig, handleDiceRoll]);
+  }, [gameState, currentPlayer, animatingPiece, playerConfig, handleDiceRoll, announcedWinner]);
 
   // Effect for AI piece moving
   useEffect(() => {
     const isAITurn = playerConfig[currentPlayer]?.type === 'ai';
-    if (!isAITurn || gameState !== 'move' || winner || animatingPiece) {
+    if (!isAITurn || gameState !== 'move' || gameState === 'gameover' || animatingPiece || announcedWinner) {
       return;
     }
 
@@ -108,7 +128,7 @@ function App() {
       }
     }, 1200); // Delay for AI "thinking" before moving
     return () => clearTimeout(timer);
-  }, [gameState, currentPlayer, winner, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handlePieceClick]);
+  }, [gameState, currentPlayer, animatingPiece, pieces, movablePieces, diceValue, playerConfig, handlePieceClick, announcedWinner]);
 
   if (appState === 'setup') {
     return <GameSetup onStartGame={handleStartGame} />;
@@ -120,6 +140,14 @@ function App() {
         <h1>Ludo Game</h1>
       </header>
       <div className={styles.gameContainer}>
+        {announcedWinner && (
+          <WinnerAnnouncer
+            winner={announcedWinner}
+            winnerName={playerConfig[announcedWinner]?.name || announcedWinner}
+            rank={winners.indexOf(announcedWinner) + 1}
+            onAcknowledge={handleAcknowledgeWinner}
+          />
+        )}
         <Board
           pieces={pieces}
           onPieceClick={handlePieceClick}
@@ -129,6 +157,7 @@ function App() {
           animatingPiece={animatingPiece}
           onAnimationComplete={handleAnimationComplete}
           winner={winner}
+          winners={winners}
           onRestart={handleRestart}
           playerConfig={playerConfig}
           diceValue={diceValue}

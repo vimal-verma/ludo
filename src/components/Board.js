@@ -13,6 +13,7 @@ const Board = ({
   movablePieces,
   currentPlayer,
   winner,
+  winners,
   onRestart,
   playerConfig,
   lastMovedPiece,
@@ -190,7 +191,7 @@ const Board = ({
   return (
     <div className={styles.boardContainer}>
       <div className={styles.board}>
-        {winner && <WinnerDisplay winner={winner} onRestart={onRestart} playerConfig={playerConfig} />}
+        {gameState === 'gameover' && winner && <WinnerDisplay winner={winner} winners={winners} onRestart={onRestart} playerConfig={playerConfig} />}
         {renderSafeZones()}
         {renderTrackPieces()}
         {renderAnimatingPiece()}

@@ -18,7 +18,7 @@ export const initialState = {
     isRolling: false,
     movablePieces: [],
     gameState: 'setup', // 'setup', 'roll', 'move', 'gameover'
-    winner: null,
+    winners: [],
     log: [],
     lastMovedPiece: null,
 };
@@ -35,7 +35,7 @@ export function gameReducer(state, action) {
                 playerConfig,
                 currentPlayer: activePlayers[0],
                 gameState: 'roll',
-                log: [{ message: 'Game started!', type: 'info' }],
+                log: [{ type: 'info', message: 'Game started!' }],
                 lastMovedPiece: null,
             };
         }
@@ -55,12 +55,12 @@ export function gameReducer(state, action) {
                     isRolling: false,
                     movablePieces: movables,
                     gameState: 'move',
-                    log: [...state.log, { message: `${playerName} rolled a ${roll}.`, type: 'roll' }],
+                    log: [...state.log, { type: 'roll', message: `${playerName} rolled a ${roll}.` }],
                 };
             }
 
             // No moves possible, switch player unless it's a 6
-            const activePlayers = Object.keys(state.pieces);
+            const activePlayers = Object.keys(state.pieces).filter(p => !state.winners.includes(p));
             const currentPlayerIndex = activePlayers.indexOf(state.currentPlayer);
             const nextPlayerIndex = (currentPlayerIndex + 1) % activePlayers.length;
             return {
@@ -69,7 +69,7 @@ export function gameReducer(state, action) {
                 isRolling: false,
                 gameState: 'roll',
                 currentPlayer: roll === 6 ? state.currentPlayer : activePlayers[nextPlayerIndex],
-                log: [...state.log, { message: `${playerName} rolled a ${roll}, but has no moves.`, type: 'roll' }],
+                log: [...state.log, { type: 'roll', message: `${playerName} rolled a ${roll}, but has no moves.` }],
             };
         }
         
@@ -89,26 +89,68 @@ export function gameReducer(state, action) {
             const newLog = [...state.log, logEntry];
             
             if (checkWin(newPieces, state.currentPlayer)) {
+                const newWinners = [...state.winners, state.currentPlayer];
+                const finalLog = [...newLog, { type: 'win', message: `${playerName} has finished in position ${newWinners.length}!` }];
+                
+                const activePlayers = Object.keys(state.pieces).filter(p => !newWinners.includes(p));
+
+                if (activePlayers.length < 2) { // Game over if 0 or 1 players are left
+                    const finalWinners = activePlayers.length === 1 ? [...newWinners, activePlayers[0]] : newWinners;
+                    return {
+                        ...state,
+                        pieces: newPieces,
+                        gameState: 'gameover',
+                        winners: finalWinners,
+                        movablePieces: [],
+                        log: [...finalLog, { type: 'info', message: 'Game Over!' }],
+                        lastMovedPiece: { color: state.currentPlayer, id: pieceId },
+                    };
+                }
+
+                // Game continues. Find next player who hasn't won.
+                // A player who just won does not get another turn, even on a 6 or capture.
+                const allPlayersInOrder = Object.keys(state.pieces);
+                let nextPlayer = state.currentPlayer;
+                let currentIndex = allPlayersInOrder.indexOf(nextPlayer);
+                do {
+                    currentIndex = (currentIndex + 1) % allPlayersInOrder.length;
+                    nextPlayer = allPlayersInOrder[currentIndex];
+                } while (newWinners.includes(nextPlayer));
+
                 return {
                     ...state,
                     pieces: newPieces,
-                    gameState: 'gameover',
-                    winner: state.currentPlayer,
+                    winners: newWinners,
+                    currentPlayer: nextPlayer,
+                    gameState: 'roll',
                     movablePieces: [],
-                    log: [...newLog, { message: `${playerName} wins the game!`, type: 'win' }],
+                    log: finalLog,
                     lastMovedPiece: { color: state.currentPlayer, id: pieceId },
                 };
             }
 
             // Player gets another turn on a 6 or a capture. Otherwise, switch player.
             const getsAnotherTurn = state.diceValue === 6 || capture;
-            const activePlayers = Object.keys(state.pieces);
+            const activePlayers = Object.keys(state.pieces).filter(p => !state.winners.includes(p));
+            
+            if (getsAnotherTurn) {
+                return {
+                    ...state,
+                    pieces: newPieces,
+                    currentPlayer: state.currentPlayer,
+                    gameState: 'roll',
+                    movablePieces: [],
+                    log: newLog,
+                    lastMovedPiece: { color: state.currentPlayer, id: pieceId },
+                };
+            }
+
             const currentPlayerIndex = activePlayers.indexOf(state.currentPlayer);
             const nextPlayerIndex = (currentPlayerIndex + 1) % activePlayers.length;
             return {
                 ...state,
                 pieces: newPieces,
-                currentPlayer: getsAnotherTurn ? state.currentPlayer : activePlayers[nextPlayerIndex],
+                currentPlayer: activePlayers.length > 0 ? activePlayers[nextPlayerIndex] : state.currentPlayer,
                 gameState: 'roll',
                 movablePieces: [],
                 log: newLog,
