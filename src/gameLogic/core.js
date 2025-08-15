@@ -82,19 +82,9 @@ export function getMovablePieces(pieces, player, roll) {
             const finalPos = calculateNewPosition(piece.position, roll, player);
             if (finalPos === null) return; // Invalid move (overshot)
 
-            // Check for blockades on the path, including destination
-            let pathIsClear = true;
-            let tempPos = piece.position;
-
-            for (let i = 0; i < roll; i++) {
-                tempPos = calculateNewPosition(piece.position, i + 1, player);
-                if (isOpponentBlockade(pieces, tempPos, player)) {
-                    pathIsClear = false;
-                    break;
-                }
-            }
-
-            if (pathIsClear) {
+            // A piece can pass over a blockade, but cannot land on it.
+            // So, we only check the final position.
+            if (!isOpponentBlockade(pieces, finalPos, player)) {
                 movables.push(piece.id);
             }
         }
@@ -223,77 +213,100 @@ export function getAIMove(pieces, player, movablePieces, diceValue) {
         const finalPos = piece.position === 'base'
             ? START_POSITIONS[player]
             : calculateNewPosition(piece.position, diceValue, player);
-        if (finalPos === null) continue; // Should not happen if piece is in movablePieces, but as a safeguard.
+        
+        if (finalPos === null) continue; // Invalid move (overshot)
 
         // --- Positive Scores (Incentives) ---
 
-        // 1. Ultimate Goal: Getting a piece home.
+        // 1. Ultimate Goal: Getting a piece home. This is the highest priority.
         if (finalPos === 'home') {
             score += 1000;
         }
 
         // 2. Capture an opponent. Score is higher if the captured piece was far along.
+        let isCapture = false;
         if (typeof finalPos === 'number' && !SAFE_ZONES.includes(finalPos)) {
             for (const opponentColor of Object.keys(pieces)) {
                 if (opponentColor === player || !pieces[opponentColor]) continue;
                 
                 const opponentsOnSquare = pieces[opponentColor].filter(p => p.position === finalPos);
                 if (opponentsOnSquare.length === 1) { // Can only capture single pieces
+                    isCapture = true;
                     const capturedPiece = opponentsOnSquare[0];
                     const opponentProgress = (TOTAL_TRACK_SQUARES + 6) - getDistanceToHome(capturedPiece, opponentColor);
-                    score += 500 + (opponentProgress * 2);
-                    break; // Assume we can only capture one piece at a time
+                    score += 500 + (opponentProgress * 3); // Increased multiplier
+                    break;
                 }
             }
         }
 
-        // 3. Get a piece out of base.
+        // 3. Get a piece out of base. Very important early-game move.
         if (piece.position === 'base') {
             score += 400;
         }
 
-        // 4. Form a blockade.
+        // 4. Form a blockade. Lower priority to encourage more aggressive play.
         if (typeof finalPos === 'number' && !SAFE_ZONES.includes(finalPos)) {
             const ownPiecesOnSquare = playerPieces.filter(p => p.position === finalPos).length;
             if (ownPiecesOnSquare === 1) {
-                score += 200;
+                score += 50; // Reduced score for forming a blockade
+                // Extra bonus for blocking an opponent's start.
+                for (const opponentColor in START_POSITIONS) {
+                    if (opponentColor !== player && START_POSITIONS[opponentColor] === finalPos) {
+                        score += 100; // This is still a powerful move.
+                        break;
+                    }
+                }
             }
         }
 
-        // 5. Land on a safe zone.
+        // 5. Land on a safe zone. Always a good defensive move.
         if (typeof finalPos === 'number' && SAFE_ZONES.includes(finalPos)) {
-            score += 100;
+            score += 120;
         }
 
         // 6. General progress score based on distance to home.
         if (typeof piece.position === 'number') {
             const progressScore = (TOTAL_TRACK_SQUARES + 6) - getDistanceToHome(piece, player);
-            score += progressScore * 10;
+            score += progressScore * 5; // Reduced multiplier to not overweight simple moves
         }
         
         // --- Negative Scores (Risks/Penalties) ---
 
-        // 7. Risk of being captured. High penalty.
+        // 7. Risk of being captured. High penalty, scaled by the piece's own progress.
         if (typeof finalPos === 'number' && isPositionInDanger(pieces, finalPos, player)) {
             // Don't be too afraid if it's the only piece out and has to move.
             const piecesOut = playerPieces.filter(p => typeof p.position === 'number').length;
             if (piecesOut > 1 || piece.position === 'base') {
-                score -= 350;
+                const selfProgress = (TOTAL_TRACK_SQUARES + 6) - getDistanceToHome(piece, player);
+                score -= (300 + selfProgress * 5); // Penalty increases the more valuable the piece is
             }
         }
 
-        // 8. Penalty for breaking up a blockade, unless moving to home or for a high-value capture.
-        if (typeof piece.position === 'number' && finalPos !== 'home' && score < 500) {
-            const ownPiecesOnSquare = playerPieces.filter(p => p.position === piece.position).length;
-            if (ownPiecesOnSquare >= 2) {
-                score -= 250;
+        // 8. Penalty for breaking up a blockade. Reduced to allow for more aggressive play.
+        if (typeof piece.position === 'number' && finalPos !== 'home' && !isCapture) {
+            const ownPiecesOnCurrentPos = playerPieces.filter(p => p.position === piece.position).length;
+            if (ownPiecesOnCurrentPos >= 2) {
+                score -= 150; // Reduced penalty
             }
         }
         
-        // 9. Small bonus for moving the piece that is furthest behind to encourage spreading out.
-        const distances = playerPieces.filter(p => typeof p.position === 'number').map(p => getDistanceToHome(p, player));
-        if (distances.length > 1 && getDistanceToHome(piece, player) === Math.max(...distances)) {
-            score += 50;
+        // 9. Penalty for moving off a safe zone unless for a high-value reason.
+        if (SAFE_ZONES.includes(piece.position)) {
+            const isGoingHome = finalPos === 'home';
+            const isLandingOnSafeZone = typeof finalPos === 'number' && SAFE_ZONES.includes(finalPos);
+            if (!isGoingHome && !isCapture && !isLandingOnSafeZone) {
+                score -= 500; // Heavy penalty for leaving a safe spot without a good reason.
+            }
+        }
+        
+        // 10. Small bonus for moving the piece that is furthest behind to encourage spreading out.
+        const piecesOnTrack = playerPieces.filter(p => typeof p.position === 'number');
+        if (piecesOnTrack.length > 1) {
+            const distances = piecesOnTrack.map(p => getDistanceToHome(p, player));
+            if (getDistanceToHome(piece, player) === Math.max(...distances)) {
+                score += 50;
+            }
         }
 
         if (score > bestMove.score) {
