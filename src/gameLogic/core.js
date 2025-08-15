@@ -2,7 +2,7 @@ export const ALL_PLAYERS = ['red', 'green', 'yellow', 'blue'];
 
 // Correct, standard starting positions and game constants
 export const START_POSITIONS = { red: 39, green: 0, yellow: 13, blue: 26 };
-export const HOME_ENTRANCES = { red: 38, green: 51, yellow: 12, blue: 25 };
+export const HOME_ENTRANCES = { red: 37, green: 50, yellow: 11, blue: 24 };
 export const HOME_PATH_START_INDEX = 52;
 export const TOTAL_TRACK_SQUARES = 52;
 export const SAFE_ZONES = [0, 8, 13, 21, 26, 34, 39, 47];

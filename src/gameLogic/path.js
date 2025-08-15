@@ -63,13 +63,12 @@ export const PATH_COORDINATES = [
   { top: c(6), left: c(0) },   // 51 - Red Entrance
 
   // Home Paths (6 positions per color)
-  // Red Home Path (52-57)
-  { top: c(7), left: c(1) }, { top: c(7), left: c(2) }, { top: c(7), left: c(3) }, { top: c(7), left: c(4) }, { top: c(7), left: c(5) }, { top: c(7), left: c(6) },
-  // Green Home Path (58-63)
-  { top: c(1), left: c(7) }, { top: c(2), left: c(7) }, { top: c(3), left: c(7) }, { top: c(4), left: c(7) }, { top: c(5), left: c(7) }, { top: c(6), left: c(7) },
-  // Yellow Home Path (64-69)
-  { top: c(7), left: c(13) }, { top: c(7), left: c(12) }, { top: c(7), left: c(11) }, { top: c(7), left: c(10) }, { top: c(7), left: c(9) }, { top: c(7), left: c(8) },
-  // Blue Home Path (70-75)
+  // Red Home Path (52-57) - Vertical path from the bottom
   { top: c(13), left: c(7) }, { top: c(12), left: c(7) }, { top: c(11), left: c(7) }, { top: c(10), left: c(7) }, { top: c(9), left: c(7) }, { top: c(8), left: c(7) },
+  // Green Home Path (58-63) - Horizontal path from the left
+  { top: c(7), left: c(1) }, { top: c(7), left: c(2) }, { top: c(7), left: c(3) }, { top: c(7), left: c(4) }, { top: c(7), left: c(5) }, { top: c(7), left: c(6) },
+  // Yellow Home Path (64-69) - Vertical path from the top
+  { top: c(1), left: c(7) }, { top: c(2), left: c(7) }, { top: c(3), left: c(7) }, { top: c(4), left: c(7) }, { top: c(5), left: c(7) }, { top: c(6), left: c(7) },
+  // Blue Home Path (70-75) - Horizontal path from the right
+  { top: c(7), left: c(13) }, { top: c(7), left: c(12) }, { top: c(7), left: c(11) }, { top: c(7), left: c(10) }, { top: c(7), left: c(9) }, { top: c(7), left: c(8) },
 ];
-
